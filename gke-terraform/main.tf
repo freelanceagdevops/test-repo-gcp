@@ -73,7 +73,7 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
 
   node_config {
     machine_type   = "e2-medium"  # Use a smaller instance to reduce storage requirements
-    disk_size_gb   = "15"
+    disk_size_gb   = 15
     disk_type      = "pd-standard"
     image_type     = "UBUNTU_CONTAINERD"
   }
