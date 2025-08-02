@@ -1,15 +1,19 @@
-provider "google" {
-  project = var.project
-  region  = var.region
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/google"
+      version = "~> 4.0"
+    }
+  }
 }
 
-# Custom VPC Network
+# Create custom VPC
 resource "google_compute_network" "custom_network" {
   name                    = "custom-vpc"
   auto_create_subnetworks = false
 }
 
-# Custom Subnetwork
+# Create custom Subnet
 resource "google_compute_subnetwork" "custom_subnet" {
   name          = "custom-subnetwork"
   ip_cidr_range = "10.10.0.0/16"
@@ -17,7 +21,7 @@ resource "google_compute_subnetwork" "custom_subnet" {
   network       = google_compute_network.custom_network.id
 }
 
-# Firewall Rule: Internal Communication
+# Firewall-1: Internal communication
 resource "google_compute_firewall" "allow_internal" {
   name    = "internal-firewall"
   network = google_compute_network.custom_network.id
@@ -29,7 +33,7 @@ resource "google_compute_firewall" "allow_internal" {
   source_ranges = ["10.10.0.0/16"]
 }
 
-# Firewall Rule: External Access (SSH, ICMP, RDP)
+# Firewall-2: External SSH, ICMP, RDP
 resource "google_compute_firewall" "allow_external" {
   name    = "external-firewall"
   network = google_compute_network.custom_network.id
@@ -46,7 +50,7 @@ resource "google_compute_firewall" "allow_external" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-# Firewall Rule: GKE Communication
+# Firewall-3: GKE communication
 resource "google_compute_firewall" "allow_gke" {
   name    = "gke-firewall"
   network = google_compute_network.custom_network.id
@@ -59,20 +63,27 @@ resource "google_compute_firewall" "allow_gke" {
   source_ranges = ["0.0.0.0/0"]
 }
 
-# GKE Cluster (Testing)
-resource "google_container_cluster" "primary" {
-  project             = var.project
-  name                = "terraform-gke-cluster"
-  location            = var.region
-  network             = google_compute_network.custom_network.id
-  subnetwork          = google_compute_subnetwork.custom_subnet.id
-  deletion_protection = false
+# Docker Artifact Registry
+resource "google_artifact_registry_repository" "docker_repo" {
+  location      = var.region
+  repository_id = "docker-repo"
+  description   = "Docker repository"
+  format        = "DOCKER"
+}
 
+# GKE Cluster
+resource "google_container_cluster" "primary" {
+  project                  = var.project
+  name                     = "terraform-gke-cluster"
+  location                 = var.region
+  network                  = google_compute_network.custom_network.id
+  subnetwork               = google_compute_subnetwork.custom_subnet.id
+  deletion_protection      = false
   remove_default_node_pool = true
   initial_node_count       = 1
 }
 
-# GKE Node Pool (minimal setup for testing)
+# GKE Node Pool
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
   cluster    = google_container_cluster.primary.name
@@ -80,10 +91,10 @@ resource "google_container_node_pool" "primary_preemptible_nodes" {
   node_count = 1
 
   node_config {
-    machine_type = "e2-medium"     # Budget-friendly VM type
+    machine_type = "e2-medium"
     disk_size_gb = 15
     disk_type    = "pd-standard"
     image_type   = "UBUNTU_CONTAINERD"
-    preemptible  = true            # Reduce cost for testing
   }
 }
+
