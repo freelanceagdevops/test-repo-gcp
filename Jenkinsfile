@@ -112,7 +112,7 @@ pipeline {
 
         stage('Update helm values.yaml with New Docker Image') {
             environment {
-                GIT_REPO_NAME = "test-k8s"
+                GIT_REPO_NAME = "test-k8s-gcp"
                 GIT_USER_NAME = "freelanceagdevops"
             }
             steps {
