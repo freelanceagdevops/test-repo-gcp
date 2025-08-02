@@ -18,7 +18,7 @@ pipeline {
 
         stage('Git Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/vijaygiduthuri/test-repo.git'
+                git branch: 'main', url: 'https://github.com/freelanceagdevops/test-repo-gcp.git'
             }
         }
 
@@ -106,14 +106,14 @@ pipeline {
 
         stage('Checkout K8s YAML Repo') {
             steps {
-                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/vijaygiduthuri/test-k8s.git'
+                git branch: 'main', credentialsId: 'github-token', url: 'https://github.com/freelanceagdevops/test-k8s-gcp.git'
             }
         }
 
         stage('Update helm values.yaml with New Docker Image') {
             environment {
                 GIT_REPO_NAME = "test-k8s"
-                GIT_USER_NAME = "vijaygiduthuri"
+                GIT_USER_NAME = "freelanceagdevops"
             }
             steps {
                 withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
@@ -121,7 +121,7 @@ pipeline {
                     set -e  # Exit on any command failure
 
                     # Configure Git user details
-                    git config user.email "vijaygiduthuri@example.com"
+                    git config user.email "freelanceagdevops@gmail.com"
                     git config user.name "${GIT_USER_NAME}"
 
                     # Print file before updating
