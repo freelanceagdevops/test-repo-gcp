@@ -13,7 +13,7 @@ variable "region" {
 variable "zone" {
   description = "this is gcp zone"
   type        = string
-  default     = "us-central1"
+  default     = "us-central1-a"
 }
 
 variable "K8s_version" {
