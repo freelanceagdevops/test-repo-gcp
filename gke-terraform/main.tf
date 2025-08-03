@@ -6,7 +6,7 @@ resource "google_compute_network" "custom_network" {
 resource "google_compute_subnetwork" "custom-subnet" {
   name          = "custom-subnetwork"
   ip_cidr_range = "10.10.0.0/16"
-  region        = var.region
+  zone          = "us-central1-a"
   network       = google_compute_network.custom_network.id
 }
 
@@ -57,7 +57,7 @@ resource "google_compute_firewall" "allow-gke" {
 resource "google_container_cluster" "primary" {
   project             = var.project
   name                = "terraform-gke-cluster"
-  location            = var.region
+  zone                = "us-central1-a"
   network             = google_compute_network.custom_network.id
   subnetwork          = google_compute_subnetwork.custom-subnet.id
   deletion_protection = false
