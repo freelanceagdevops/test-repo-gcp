@@ -52,7 +52,7 @@ resource "google_compute_firewall" "allow-gke" {
 resource "google_container_cluster" "primary" {
   project             = var.project
   name                = "terraform-gke-cluster"
-  zone                = var.zone            # ✅ Zonal Cluster
+  location            = var.zone            # ✅ Zonal Cluster
   network             = google_compute_network.custom_network.id
   subnetwork          = google_compute_subnetwork.custom-subnet.id
   deletion_protection = false
@@ -63,7 +63,7 @@ resource "google_container_cluster" "primary" {
 resource "google_container_node_pool" "primary_preemptible_nodes" {
   name       = "my-node-pool"
   cluster    = google_container_cluster.primary.name
-  zone       = var.zone                     # ✅ Explicitly define zone
+  location   = var.zone                     # ✅ Explicitly define zone
   node_count = 1
 
   node_config {
